@@ -11,7 +11,9 @@ async function TweetStandardMcDonalds(){
     var currentBio = await twitterInterface.getBio();
     var currentMcDonaldsCount = currentBio.split('/')[0];
     currentMcDonaldsCount = currentMcDonaldsCount.split(' ');
-    currentMcDonaldsCount = parseInt(currentMcDonaldsCount[currentMcDonaldsCount.length-1]);
+    currentMcDonaldsCount = currentMcDonaldsCount[currentMcDonaldsCount.length-1];
+    currentMcDonaldsCount = currentMcDonaldsCount.replace(',','');
+    currentMcDonaldsCount = parseInt(currentMcDonaldsCount);
     if(currentMcDonaldsCount == (totalMcDonalds-1)){
         return;
     }
