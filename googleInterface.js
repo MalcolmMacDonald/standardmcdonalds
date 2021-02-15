@@ -6,9 +6,10 @@ const imageAPIURL = 'https://maps.googleapis.com/maps/api/streetview?';
 const geocodingAPIURL = 'https://maps.googleapis.com/maps/api/geocode/json?';
 const separator = '&';
 var https = require('https');
-const size = 3000;
+const width = 600;
+const height = 400;
 const radius = 1000;
-const fov = 90;
+const fov = 120;
 
 var googleDataType = {
     Metadata:0,
@@ -17,58 +18,69 @@ var googleDataType = {
 }
 
 
-async function GetGoogleData(dataType, lat, long) {
+async function GetGoogleData(dataType, location) {
     var url;
     switch (dataType) {
         case googleDataType.Metadata:
-            url = GetMetadataURL(lat, long);
+            url = GetMetadataURL(location);
             break;
         case googleDataType.PanoramaImage:
-            url = GetPanoramaImageURL(lat, long);
+            url = GetPanoramaImageURL(location);
             break;
         case googleDataType.Geocoding:
-            url = GetGeocodingURL(lat,long);
+            url = GetGeocodingURL(location);
             break;
     }
+    
+    console.log(url);
 
     return await new Promise((resolve, reject) => {
         var outData = '';
         https.get(url, (res) => {
+            if(dataType == googleDataType.PanoramaImage){
+            res.setEncoding('base64');
+            }
             res.on('data', (chunk) => {
                 outData += chunk;
             });
 
             res.on('end', () => {
-                var dataJSON = JSON.parse(outData);
-                resolve(dataJSON);
+                switch(dataType){
+                    case googleDataType.PanoramaImage:
+                        resolve(outData);
+                        break;
+                    default:
+                        resolve(JSON.parse(outData));
+                        break;
+                }
             });
         });
     });
 
 }
 
-function GetMetadataURL(lat, long) {
+function GetMetadataURL(location) {
 
-    var locationString = 'location=' + lat + ',' + long;
+    var locationString = 'location=' + location.lat + ',' + location.long;
     var keyString = 'key=' + GOOGLE_API_KEY;
     var radiusString = 'radius=' + radius.toString();
 
     return metadataAPIURL + locationString + separator + radiusString + separator + keyString;
 }
 
- function GetPanoramaImageURL(lat, long) {
+ function GetPanoramaImageURL(location) {
 
-    var sizeString = 'size=' + size.toString() + 'x' + size.toString();
-    var locationString = 'location=' + lat + ',' + long;
+    var sizeString = 'size=' + width.toString() + 'x' + height.toString();
+    var locationString = 'location=' + location.lat + ',' + location.long;
     var fovString = 'fov=' + fov.toString();
     var keyString = 'key=' + GOOGLE_API_KEY;
     var radiusString = 'radius=' + radius.toString();
 
     return imageAPIURL + sizeString + separator + locationString + separator + fovString + separator + radiusString + separator + keyString;
 }
-function GetGeocodingURL(lat, long ){
+function GetGeocodingURL(location){
     var languageString = 'language=en'
-    var locationString = 'latlng=' + lat + ',' + long;
+    var locationString = 'latlng=' + location.lat + ',' + location.long;
     var keyString = 'key=' + GOOGLE_API_KEY;
     var resultTypes = [
         'locality','political'

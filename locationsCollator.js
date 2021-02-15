@@ -55,23 +55,6 @@ async function FilterLocations(filePath) {
     return goodLocations;
 }
 
-async function TestGeocoding(){
-    var savedLocations = JSON.parse(fs.readFileSync('./data/GoodLocations.json'));
-    for(var i = 0; i < savedLocations.length; i++){
-        var geoCodeData = await googleInterface.GetGoogleData(googleDataType.Geocoding, savedLocations[i].lat,savedLocations[i].long);
-        var formattedAddress = geoCodeData.results[0].formatted_address;
-        var postalCode = geoCodeData.results[0].address_components.find(component => component.types.some(type => type == "postal_code" ));
-        if(postalCode){
-            formattedAddress = formattedAddress.replace( ' ' + postalCode.long_name,'');
-        }
-        console.log(formattedAddress);
-        //if(!formattedAddress.includes('USA')){
-       // }
-      //console.log(geoCodeData);
-        //break;
-    }
-}
-
 function removeDuplicates(array){
     return savedLocations.filter(function(item, pos, self) {
         return self.indexOf(item) == pos;
@@ -87,6 +70,5 @@ function shuffleArray(array) {
 
 
 module.exports = {
-    GetAllLocations,
-    TestGeocoding
+    GetAllLocations
 }
