@@ -4,7 +4,7 @@ var dataFolder = './data';
 
 var googleDataType = googleInterface.googleDataType;
 
-async function GetAllLocations() {
+async function GetAllLocations(oldLocations) {
     var allLocations = [];
     var folders = fs.readdirSync(dataFolder);
     for (var i = 0; i < folders.length; i++) {
@@ -19,6 +19,13 @@ async function GetAllLocations() {
     }
     removeDuplicates(allLocations);
     shuffleArray(allLocations);
+    
+    var justNewLocations = allLocations.filter(function(item, pos, self) {
+        return !oldLocations.includes(item);
+    });
+    
+    allLocations = oldLocations.concat(justNewLocations);
+    
     var goodLocationsText = JSON.stringify(allLocations);
     fs.writeFile(dataFolder + '/GoodLocations.json', goodLocationsText, (err) => {
     });
@@ -39,24 +46,24 @@ async function FilterLocations(filePath) {
     }
     var goodLocations = [];
     for (var i = 0; i < dataArray.length; i++) {
-        var lat;
-        var long;
+
+        var location = {lat:0,long:0};
         if (useCollectedTechnique) {
-            lat = dataArray[i].lat;
-            long = dataArray[i].long;
+            location.lat = dataArray[i].lat;
+            location.long = dataArray[i].long;
         } else {
-            lat = dataArray[i].geometry.coordinates[0];
-            long = dataArray[i].geometry.coordinates[1];
+            location.lat = dataArray[i].geometry.coordinates[1];
+            location.long = dataArray[i].geometry.coordinates[0];
         }
-        if ((await googleInterface.RequestGoogleData(googleDataType.Metadata, lat, long)).status == 'OK') {
-            goodLocations.push({lat: lat, long: long});
+        if ((await googleInterface.GetGoogleData(googleDataType.Metadata,location)).status == 'OK') {
+            goodLocations.push(location);
         }
     }
     return goodLocations;
 }
 
 function removeDuplicates(array){
-    return savedLocations.filter(function(item, pos, self) {
+    return array.filter(function(item, pos, self) {
         return self.indexOf(item) == pos;
     });
 }
