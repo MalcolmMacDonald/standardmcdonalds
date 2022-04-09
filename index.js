@@ -21,7 +21,7 @@ async function TweetStandardMcDonalds(){
     await twitterInterface.tweet(tweetData);
     
     currentMcDonaldsCount += 1;
-    var newBio = `A bot documenting the less exciting McDonald's.\nTweets not endorsements.\nAdmin: @mal_loc\nnonstandard mcdonald's: @nonstandardmcd\nMcDonald's Posted: ${numberWithCommas(currentMcDonaldsCount)}/${numberWithCommas(totalMcDonalds)}`;
+    var newBio = `A bot documenting the less exciting McDonald's\nTweets not endorsements\nAdmin: @mal_loc\nnonstandard mcdonald's: @nonstandardmcd\nMcDonald's Posted: ${numberWithCommas(currentMcDonaldsCount)}/${numberWithCommas(totalMcDonalds)}`;
     await twitterInterface.setBio(newBio);
 }
 
